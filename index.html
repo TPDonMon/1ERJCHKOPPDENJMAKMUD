@@ -5,6 +5,8 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Notes</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;700&family=Roboto:wght@400;700&family=Open+Sans:wght@400;700&family=Montserrat:wght@400;700&family=Poppins:wght@400;700&family=Lato:wght@400;700&family=Nunito:wght@400;700&family=Raleway:wght@400;700&family=Work+Sans:wght@400;700&family=Playfair+Display:wght@400;700&family=Merriweather:wght@400;700&family=Lora:wght@400;700&family=Crimson+Text:wght@400;700&family=EB+Garamond:wght@400;700&family=Cormorant+Garamond:wght@400;700&family=Libre+Baskerville:wght@400;700&family=JetBrains+Mono:wght@400;700&family=Fira+Code:wght@400;700&family=Source+Code+Pro:wght@400;700&family=Space+Mono:wght@400;700&family=Courier+Prime:wght@400;700&family=Oswald:wght@400;700&family=Caveat:wght@400;700&family=Dancing+Script:wght@400;700&family=Bebas+Neue&family=Abril+Fatface&family=Lobster&family=Pacifico&family=Shadows+Into+Light&family=Indie+Flower&family=Permanent+Marker&family=Satisfy&display=swap">
 <style>
   :root{
     --bg:#0a0b0f; --panel:#11131a; --panel2:#171a23; --line:#232736;
@@ -109,9 +111,9 @@
 
   /* Shared rich-text look (live editor AND exported image) */
   .rich{font-size:16.5px;line-height:1.75;color:#d6d9e6;word-wrap:break-word}
-  .rich h1{font-size:30px;margin:.8em 0 .3em;letter-spacing:-.02em;color:#fff}
-  .rich h2{font-size:23px;margin:.8em 0 .3em;letter-spacing:-.01em;color:#fff}
-  .rich h3{font-size:18px;margin:.8em 0 .3em;color:#fff}
+  .rich h1{font-size:1.82em;margin:.8em 0 .3em;letter-spacing:-.02em;color:#fff}
+  .rich h2{font-size:1.39em;margin:.8em 0 .3em;letter-spacing:-.01em;color:#fff}
+  .rich h3{font-size:1.09em;margin:.8em 0 .3em;color:#fff}
   .rich strong,.rich b{color:#fff;font-weight:700}
   .rich ul,.rich ol{margin:.5em 0 .5em 1.5em}
   .rich li{margin:.15em 0}
@@ -120,11 +122,32 @@
   .rich code{background:var(--panel2);border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;color:#f0abfc}
   .rich a{color:var(--accent2);text-decoration:underline;text-underline-offset:3px}
   .rich hr{border:0;border-top:1px solid var(--line);margin:1.5em 0}
-  .rich font[size="2"]{font-size:13px}
-  .rich font[size="3"]{font-size:16.5px}
-  .rich font[size="4"]{font-size:20px}
-  .rich font[size="5"]{font-size:26px}
-  .rich font[size="6"]{font-size:34px}
+  .rich font[size="2"]{font-size:.79em}
+  .rich font[size="3"]{font-size:1em}
+  .rich font[size="4"]{font-size:1.21em}
+  .rich font[size="5"]{font-size:1.58em}
+  .rich font[size="6"]{font-size:2.06em}
+
+
+  /* Media, size controls, read-only */
+  .rich figure.media{margin:1em 0;border-radius:12px;max-width:100%}
+  .rich figure.img img{display:block;width:100%;height:auto;border-radius:12px;border:1px solid var(--line)}
+  .rich figure[data-align=center]{margin-left:auto;margin-right:auto}
+  .rich figure.aud{background:var(--panel2);border:1px solid var(--line);padding:12px 14px}
+  .rich figure.aud::before{content:"\1F3B5  " attr(data-name);display:block;font-size:.85em;color:#b6bbcc;margin-bottom:8px;font-family:Inter,sans-serif}
+  .rich figure.aud audio{width:100%;height:36px}
+  #mediaFrame{position:fixed;border:2px solid var(--accent);border-radius:12px;pointer-events:none;z-index:40}
+  #mediaBar{position:fixed;z-index:50;display:flex;gap:2px;background:var(--panel);border:1px solid var(--line);border-radius:10px;padding:3px;box-shadow:0 8px 24px rgba(0,0,0,.5)}
+  #mediaBar .tb{height:28px;min-width:28px;font-size:12px}
+  .lbl{font-size:11px;color:var(--muted);margin:0 6px 0 4px}
+  input[type=range]{width:90px;accent-color:var(--accent)}
+  #baseVal{font-size:12px;color:#b6bbcc;min-width:34px;margin-left:6px}
+  #selSize{width:54px;height:32px;background:var(--panel2);border:1px solid var(--line);color:var(--text);border-radius:8px;text-align:center;font-size:13px;outline:none}
+  .tb.ro{font-weight:600}
+  body.ro .toolbar .group:not(.keep){display:none}
+  body.ro #editor{caret-color:transparent}
+  body.ro #title{pointer-events:none}
+  #roBadge{color:#fbbf24}
 
   /* Off-screen export stage */
   .stage{
@@ -166,13 +189,25 @@
     <button class="ghost" id="exportBtn" title="Export this note as a PNG image">⬇ Export PNG</button>
     <button class="ghost" id="backupBtn" title="Download all notes as JSON">Backup</button>
   </div>
-  <input type="file" id="file" accept=".png,.json,.txt,.md,.markdown,image/png,application/json,text/plain" multiple hidden>
+  <input type="file" id="file" accept=".png,.json,.txt,.md,.markdown,image/*,audio/*,application/json,text/plain" multiple hidden>
   <div class="search"><input id="search" placeholder="Search notes…" autocomplete="off"></div>
   <div id="list"></div>
 </aside>
 
 <main id="main">
   <div class="toolbar" id="toolbar">
+    <div class="group keep">
+      <button class="tb ro" id="roBtn" title="Toggle read-only mode">🔓 Editing</button>
+    </div>
+    <div class="group keep">
+      <span class="lbl">Note size</span><input type="range" id="baseSize" min="12" max="36" step="0.5" value="16.5" title="Text size for the whole note"><span id="baseVal">16.5</span>
+    </div>
+    <div class="group">
+      <span class="lbl">Selection / word</span>
+      <button class="tb" id="szDown" title="Smaller (selection, or word at cursor)">A−</button>
+      <input type="number" id="selSize" min="6" max="200" step="0.5" value="16.5" title="Size in px for selected text, or the word at the cursor">
+      <button class="tb" id="szUp" title="Larger (selection, or word at cursor)">A+</button>
+    </div>
     <div class="group">
       <button class="tb" data-cmd="undo" title="Undo">↶</button>
       <button class="tb" data-cmd="redo" title="Redo">↷</button>
@@ -184,19 +219,7 @@
         <option value="H2">Heading 2</option>
         <option value="H3">Heading 3</option>
       </select>
-      <select class="tb" id="font" title="Font">
-        <option value="Inter, sans-serif">Sans</option>
-        <option value="Georgia, serif">Serif</option>
-        <option value="ui-monospace, Menlo, monospace">Mono</option>
-        <option value="'Comic Sans MS', cursive">Casual</option>
-      </select>
-      <select class="tb" id="size" title="Size">
-        <option value="2">Small</option>
-        <option value="3" selected>Normal</option>
-        <option value="4">Large</option>
-        <option value="5">X-Large</option>
-        <option value="6">Huge</option>
-      </select>
+      <select class="tb" id="font" title="Font"></select>
     </div>
     <div class="group">
       <button class="tb" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
@@ -220,6 +243,10 @@
       <button class="tb" data-cmd="justifyRight" title="Align right">⯈</button>
     </div>
     <div class="group">
+      <button class="tb" id="photoBtn" title="Insert photo">🖼 Photo</button>
+      <button class="tb" id="audioBtn" title="Insert MP3 / audio">🎵 Audio</button>
+    </div>
+    <div class="group">
       <button class="tb" id="quote" title="Quote">❝</button>
       <button class="tb" id="link" title="Insert link">🔗</button>
       <button class="tb" data-cmd="insertHorizontalRule" title="Divider">―</button>
@@ -233,6 +260,7 @@
       <div class="meta">
         <span id="date"></span>
         <span id="count">0 words</span>
+        <span id="roBadge" class="hide">🔒 Read only</span>
         <span><i class="dot" id="dot"></i><span id="status">Saved</span></span>
       </div>
       <div id="editor" class="rich" contenteditable="true" spellcheck="true" data-ph="Start writing… try **bold**, *italic* or ***both***"></div>
@@ -241,6 +269,10 @@
   <div class="none hide" id="none"><div><p style="font-size:42px;margin-bottom:10px">✦</p><p>No note selected.</p><p style="margin-top:6px;font-size:13px">Create one or import a file to get started.</p></div></div>
 </main>
 
+<input type="file" id="photoFile" accept="image/*" multiple hidden>
+<input type="file" id="audioFile" accept="audio/*,.mp3" multiple hidden>
+<div id="mediaFrame" class="hide"></div>
+<div id="mediaBar" class="hide"><button class="tb" data-w="25">25%</button><button class="tb" data-w="50">50%</button><button class="tb" data-w="75">75%</button><button class="tb" data-w="100">100%</button><button class="tb" data-al="left" title="Align left">⯇</button><button class="tb" data-al="center" title="Center">≡</button><button class="tb" id="mediaDel" title="Remove">✕</button></div>
 <div id="toast"></div>
 
 <script>
@@ -254,8 +286,39 @@
   const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
   const fmtDate = t => new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) + ' · ' +
                        new Date(t).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
-  const plain = html => { const d = document.createElement('div'); d.innerHTML = html; return clean(d.innerText || d.textContent || '').trim(); };
+  const plain = html => { const d = document.createElement('div'); d.innerHTML = html.replace(/<(img|audio)\b[^>]*>/gi, ''); return clean(d.innerText || d.textContent || '').trim(); };
   const current = () => notes.find(n => n.id === currentId);
+  let readOnly = false, lastRange = null, selMedia = null;
+  const DEFAULT_SIZE = 16.5;
+
+  /* Storage: window.storage when available, otherwise IndexedDB */
+  const hasWS = typeof window.storage?.get === 'function';
+  const MEDIA_LIMIT = hasWS ? 3.5e6 : 30e6;
+  const store = (() => {
+    let dbp;
+    const idb = () => dbp || (dbp = new Promise((res, rej) => { const r = indexedDB.open('notes-app', 1); r.onupgradeneeded = () => r.result.createObjectStore('kv'); r.onsuccess = () => res(r.result); r.onerror = () => rej(r.error); }));
+    const tx = async (mode, fn) => { const db = await idb(); return new Promise((res, rej) => { const t = db.transaction('kv', mode); const q = fn(t.objectStore('kv')); t.oncomplete = () => res(q.result); t.onerror = t.onabort = () => rej(t.error); }); };
+    return {
+      async get(k) { if (hasWS) { const r = await window.storage.get(k); return r && r.value ? r.value : null; } return (await tx('readonly', o => o.get(k))) ?? null; },
+      async set(k, v) { if (hasWS) { if (!(await window.storage.set(k, v))) throw new Error('fail'); return; } await tx('readwrite', o => o.put(v, k)); }
+    };
+  })();
+
+  /* Fonts */
+  const FONTS = [
+    ['System', [['Sans (Inter)', 'Inter, sans-serif'], ['Arial', 'Arial, sans-serif'], ['Georgia', 'Georgia, serif'], ['Times New Roman', "'Times New Roman', serif"], ['Comic Sans', "'Comic Sans MS', cursive"], ['Mono', 'ui-monospace, Menlo, monospace']]],
+    ['Sans-serif', ['Roboto', 'Open Sans', 'Montserrat', 'Poppins', 'Lato', 'Nunito', 'Raleway', 'Work Sans'].map(f => [f, `'${f}', sans-serif`])],
+    ['Serif', ['Playfair Display', 'Merriweather', 'Lora', 'Crimson Text', 'EB Garamond', 'Cormorant Garamond', 'Libre Baskerville'].map(f => [f, `'${f}', serif`])],
+    ['Monospace', ['JetBrains Mono', 'Fira Code', 'Source Code Pro', 'Space Mono', 'Courier Prime'].map(f => [f, `'${f}', monospace`])],
+    ['Display', ['Bebas Neue', 'Oswald', 'Abril Fatface', 'Lobster', 'Pacifico'].map(f => [f, `'${f}', sans-serif`])],
+    ['Handwriting', ['Caveat', 'Dancing Script', 'Shadows Into Light', 'Indie Flower', 'Permanent Marker', 'Satisfy'].map(f => [f, `'${f}', cursive`])]
+  ];
+  FONTS.forEach(([g, list]) => {
+    const og = document.createElement('optgroup'); og.label = g;
+    list.forEach(([label, stack]) => { const o = document.createElement('option'); o.value = stack; o.textContent = label; o.style.fontFamily = stack; og.appendChild(o); });
+    $('#font').appendChild(og);
+  });
+  const fontKey = v => (v || '').split(',')[0].replace(/['"]/g, '').trim().toLowerCase();
 
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
@@ -265,8 +328,8 @@
   /* ---------- Storage ---------- */
   async function load() {
     try {
-      const r = await window.storage.get('notes-v1');
-      if (r && r.value) notes = JSON.parse(r.value);
+      const v = await store.get('notes-v1');
+      if (v) notes = JSON.parse(v);
     } catch (e) { /* no saved notes yet */ }
     if (!notes.length) notes = [makeNote('Welcome', welcomeHTML())];
     currentId = notes[0].id;
@@ -280,8 +343,9 @@
     setStatus(true);
     clearTimeout(saveTimer);
     saveTimer = setTimeout(async () => {
-      try { await window.storage.set('notes-v1', JSON.stringify(notes)); } catch (e) {}
-      setStatus(false);
+      let ok = true;
+      try { await store.set('notes-v1', JSON.stringify(notes)); } catch (e) { ok = false; toast('Could not save. Storage may be full; try removing some media.'); }
+      setStatus(false); if (!ok) $('#status').textContent = 'Not saved';
     }, 500);
   }
 
@@ -291,6 +355,7 @@
       '<li>Type <code>*text*</code> for <em>italic</em></li>' +
       '<li>Type <code>***text***</code> for <strong><em>both</em></strong></li>' +
       '<li>Type <code>~~text~~</code> for <s>strikethrough</s></li></ul>' +
+      '<p>New: pick a <em>Note size</em>, resize any selected text or single word with <strong>A−/A+</strong>, add photos and MP3s, and lock a note with <strong>Read only</strong>.</p>' +
       '<p>Use <strong>Export PNG</strong> to save a note as an image. Import that PNG later to get the editable note back.</p>';
   }
 
@@ -310,7 +375,7 @@
     shown.forEach(n => {
       const el = document.createElement('div');
       el.className = 'card' + (n.id === currentId ? ' active' : '');
-      el.innerHTML = `<h3>${esc(n.title || 'Untitled note')}</h3><p>${esc(plain(n.html).slice(0, 120)) || 'Empty note'}</p><time>${fmtDate(n.updated)}</time>`;
+      el.innerHTML = `<h3>${n.readOnly ? '🔒 ' : ''}${esc(n.title || 'Untitled note')}</h3><p>${esc(plain(n.html).slice(0, 120)) || 'Empty note'}</p><time>${fmtDate(n.updated)}</time>`;
       const del = document.createElement('button');
       del.className = 'del' + (pendingDelete === n.id ? ' confirm' : '');
       del.textContent = pendingDelete === n.id ? 'Sure?' : 'Delete';
@@ -342,6 +407,9 @@
     currentId = id;
     titleEl.value = n.title;
     editor.innerHTML = n.html;
+    selectMedia(null);
+    applyBase(n.size || DEFAULT_SIZE);
+    setReadOnly(!!n.readOnly, false);
     $('#date').textContent = 'Edited ' + fmtDate(n.updated);
     updateMeta();
   }
@@ -360,7 +428,7 @@
 
   function commit() {
     const n = current();
-    if (!n) return;
+    if (!n || readOnly) return;
     n.title = titleEl.value;
     n.html = editor.innerHTML;
     n.updated = Date.now();
@@ -411,15 +479,42 @@
 
   editor.addEventListener('input', e => { autoFormat(e); commit(); });
 
+  // Convert markdown-style markers inside a line of text into HTML
+  function inlineMd(s) {
+    const codes = [];
+    let h = esc(s).replace(/`([^`]+)`/g, (m, c) => { codes.push(c); return '\u0000' + (codes.length - 1) + '\u0000'; });
+    h = h
+      .replace(/\*\*\*(?=\S)(.+?)(?<=\S)\*\*\*/g, '<strong><em>$1</em></strong>')
+      .replace(/\*\*(?=\S)(.+?)(?<=\S)\*\*/g, '<strong>$1</strong>')
+      .replace(/(?<![*\w])\*(?=\S)(.+?)(?<=\S)\*(?!\w)/g, '<em>$1</em>')
+      .replace(/~~(?=\S)(.+?)(?<=\S)~~/g, '<s>$1</s>');
+    return h.replace(/\u0000(\d+)\u0000/g, (m, i) => '<code>' + codes[i] + '</code>');
+  }
+
+  // Pasted text gets the same auto-formatting as typed text
   editor.addEventListener('paste', e => {
     e.preventDefault();
-    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
-    document.execCommand('insertText', false, text);
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain').replace(/\r/g, '');
+    if (!text) return;
+    const sel = getSelection();
+    const anchor = sel.anchorNode && (sel.anchorNode.nodeType === 3 ? sel.anchorNode.parentElement : sel.anchorNode);
+    if (anchor && anchor.closest && anchor.closest('code')) { // inside inline code: keep literal
+      document.execCommand('insertText', false, text);
+      return;
+    }
+    text.split('\n').forEach((line, i) => {
+      if (i) document.execCommand('insertParagraph');
+      if (!line) return;
+      let html = inlineMd(line);
+      if (/<\/(strong|em|s|code)>$/.test(html)) html += '&#8203;'; // so typing after it isn't formatted
+      document.execCommand('insertHTML', false, html);
+    });
+    commit();
   });
 
   /* ---------- Toolbar ---------- */
   document.execCommand('styleWithCSS', false, false);
-  const exec = (cmd, val = null) => { editor.focus(); document.execCommand(cmd, false, val); commit(); refreshState(); };
+  const exec = (cmd, val = null) => { if (readOnly) return; editor.focus(); document.execCommand(cmd, false, val); commit(); refreshState(); };
 
   document.querySelectorAll('[data-cmd]').forEach(b => {
     b.addEventListener('mousedown', e => e.preventDefault());
@@ -428,7 +523,6 @@
 
   $('#block').onchange = e => exec('formatBlock', e.target.value);
   $('#font').onchange  = e => exec('fontName', e.target.value);
-  $('#size').onchange  = e => exec('fontSize', e.target.value);
 
   $('#fc').addEventListener('input', e => { $('#fcSpan').style.setProperty('--c', e.target.value); exec('foreColor', e.target.value); });
   $('#hc').addEventListener('input', e => { $('#hcSpan').style.setProperty('--c', e.target.value); exec('hiliteColor', e.target.value); });
@@ -463,14 +557,172 @@
       }
     });
     try {
+      const fk = fontKey(document.queryCommandValue('fontName')) || 'inter';
+      const o = [...$('#font').options].find(x => fontKey(x.value) === fk) || $('#font').options[0];
+      $('#font').value = o.value;
+    } catch (e) {}
+    try {
       const v = (document.queryCommandValue('formatBlock') || '').toUpperCase().replace(/[<>]/g, '');
       $('#block').value = ['H1','H2','H3'].includes(v) ? v : 'P';
     } catch (e) {}
   }
   document.addEventListener('selectionchange', () => {
     const s = getSelection();
-    if (s.anchorNode && editor.contains(s.anchorNode)) refreshState();
+    if (s.anchorNode && editor.contains(s.anchorNode) && s.rangeCount) {
+      lastRange = s.getRangeAt(0).cloneRange();
+      if (!readOnly) refreshState();
+      if (document.activeElement !== $('#selSize')) $('#selSize').value = +sizeAt(lastRange).toFixed(1);
+    }
   });
+
+  /* ---------- Sizes ---------- */
+  function applyBase(px) {
+    editor.style.fontSize = px + 'px';
+    $('#baseSize').value = px; $('#baseVal').textContent = px + 'px';
+  }
+  $('#baseSize').oninput = e => {
+    const px = +e.target.value; applyBase(px);
+    const n = current(); if (n) { n.size = px; scheduleSave(); }
+  };
+  function sizeAt(r) {
+    let n = r.startContainer;
+    if (n.nodeType === 1) n = n.childNodes[r.startOffset] || n;
+    if (n.nodeType === 3) n = n.parentElement;
+    return parseFloat(getComputedStyle(n || editor).fontSize) || DEFAULT_SIZE;
+  }
+  function ensureSel() {
+    const s = getSelection();
+    if (!(s.rangeCount && editor.contains(s.anchorNode)) && lastRange) { s.removeAllRanges(); s.addRange(lastRange); }
+    return s;
+  }
+  function expandToWord(sel) {
+    const n = sel.anchorNode, o = sel.anchorOffset;
+    if (!n || n.nodeType !== 3) return false;
+    const t = n.textContent, ok = c => c && /[^\s\u200B]/.test(c);
+    let a = o, b = o;
+    while (a > 0 && ok(t[a - 1])) a--;
+    while (b < t.length && ok(t[b])) b++;
+    if (a === b) return false;
+    const r = document.createRange(); r.setStart(n, a); r.setEnd(n, b); sel.removeAllRanges(); sel.addRange(r);
+    return true;
+  }
+  function applySize(px) {
+    if (readOnly) return;
+    px = Math.min(200, Math.max(6, +px || DEFAULT_SIZE));
+    editor.focus();
+    const sel = ensureSel();
+    if (!sel.rangeCount) return;
+    if (sel.isCollapsed && !expandToWord(sel)) { toast('Select some text, or put the cursor in a word'); return; }
+    document.execCommand('styleWithCSS', false, false);
+    document.execCommand('fontSize', false, '7');
+    const spans = [];
+    editor.querySelectorAll('font[size="7"]').forEach(f => {
+      const sp = document.createElement('span'); sp.style.fontSize = px + 'px';
+      while (f.firstChild) sp.appendChild(f.firstChild);
+      f.replaceWith(sp); spans.push(sp);
+      sp.querySelectorAll('[style*="font-size"]').forEach(c => { c.style.fontSize = ''; if (!c.getAttribute('style')) c.removeAttribute('style'); });
+      sp.querySelectorAll('font[size]').forEach(c => c.removeAttribute('size'));
+    });
+    if (spans.length) { const r = document.createRange(); r.setStartBefore(spans[0]); r.setEndAfter(spans[spans.length - 1]); sel.removeAllRanges(); sel.addRange(r); }
+    $('#selSize').value = px;
+    commit();
+  }
+  [['#szDown', -2], ['#szUp', 2]].forEach(([id, d]) => {
+    $(id).addEventListener('mousedown', e => e.preventDefault());
+    $(id).onclick = () => { const s = ensureSel(); if (!s.rangeCount) return; applySize(sizeAt(s.getRangeAt(0)) + d); };
+  });
+  $('#selSize').onchange = e => applySize(e.target.value);
+
+  /* ---------- Read-only ---------- */
+  function setReadOnly(v, persist = true) {
+    readOnly = v;
+    editor.contentEditable = v ? 'false' : 'true';
+    titleEl.readOnly = v;
+    document.body.classList.toggle('ro', v);
+    $('#roBtn').textContent = v ? '🔒 Read only' : '🔓 Editing';
+    $('#roBtn').classList.toggle('on', v);
+    $('#roBadge').classList.toggle('hide', !v);
+    selectMedia(null);
+    if (persist) { const n = current(); if (n) { n.readOnly = v; scheduleSave(); renderList(); } toast(v ? 'Read-only mode on' : 'Editing enabled'); }
+  }
+  $('#roBtn').onclick = () => setReadOnly(!readOnly);
+
+  /* ---------- Photos & audio ---------- */
+  const readDataURL = f => new Promise((res, rej) => { const r = new FileReader(); r.onload = () => res(r.result); r.onerror = () => rej(r.error); r.readAsDataURL(f); });
+  const attr = t => esc(t).replace(/"/g, '&quot;');
+  async function imageData(f) {
+    if (f.type === 'image/gif') { if (f.size > MEDIA_LIMIT) throw new Error('big'); return readDataURL(f); }
+    const url = URL.createObjectURL(f);
+    try {
+      const img = await new Promise((res, rej) => { const i = new Image(); i.onload = () => res(i); i.onerror = () => rej(new Error('bad')); i.src = url; });
+      const W = img.naturalWidth || 800, H = img.naturalHeight || 600, k = Math.min(1, 1600 / Math.max(W, H));
+      const c = document.createElement('canvas'); c.width = Math.round(W * k); c.height = Math.round(H * k);
+      const x = c.getContext('2d'), jpg = f.type === 'image/jpeg';
+      if (jpg) { x.fillStyle = '#fff'; x.fillRect(0, 0, c.width, c.height); }
+      x.drawImage(img, 0, 0, c.width, c.height);
+      return c.toDataURL(jpg ? 'image/jpeg' : 'image/webp', .88);
+    } finally { URL.revokeObjectURL(url); }
+  }
+  function insertBlock(html) {
+    editor.focus();
+    const s = ensureSel();
+    if (!s.rangeCount || !editor.contains(s.anchorNode)) { const r = document.createRange(); r.selectNodeContents(editor); r.collapse(false); s.removeAllRanges(); s.addRange(r); }
+    document.execCommand('insertHTML', false, html + '<p><br></p>');
+    commit();
+  }
+  async function insertMedia(f) {
+    if (readOnly) { toast('This note is read-only'); return false; }
+    try {
+      if (f.type.startsWith('audio/') || /\.(mp3|m4a|wav|ogg|flac)$/i.test(f.name)) {
+        if (f.size > MEDIA_LIMIT) { toast(`Audio too large (max ${Math.round(MEDIA_LIMIT / 1e6)} MB here)`); return false; }
+        let d = await readDataURL(f);
+        if (!/^data:audio\//.test(d)) d = d.replace(/^data:[^;,]*/, 'data:audio/mpeg');
+        insertBlock(`<figure class="media aud" contenteditable="false" data-name="${attr(f.name.replace(/\.[^.]+$/, ''))}"><audio controls preload="metadata" src="${d}"></audio></figure>`);
+      } else {
+        const d = await imageData(f);
+        insertBlock(`<figure class="media img" contenteditable="false"><img src="${d}" alt="" draggable="false"></figure>`);
+      }
+      return true;
+    } catch (err) { console.error(err); toast('Could not add that file'); return false; }
+  }
+  [['#photoBtn', '#photoFile'], ['#audioBtn', '#audioFile']].forEach(([b, i]) => {
+    $(b).addEventListener('mousedown', e => e.preventDefault());
+    $(b).onclick = () => { if (readOnly) return toast('This note is read-only'); $(i).click(); };
+    $(i).onchange = async e => { for (const f of [...e.target.files]) await insertMedia(f); e.target.value = ''; };
+  });
+
+  const bar = $('#mediaBar'), frame = $('#mediaFrame');
+  function placeBar() {
+    if (!selMedia || !selMedia.isConnected) return selectMedia(null);
+    const r = selMedia.getBoundingClientRect();
+    Object.assign(frame.style, { left: r.left - 3 + 'px', top: r.top - 3 + 'px', width: r.width + 6 + 'px', height: r.height + 6 + 'px' });
+    bar.style.left = Math.max(8, r.right - bar.offsetWidth) + 'px';
+    bar.style.top = Math.max(8, r.top - bar.offsetHeight - 8) + 'px';
+  }
+  function selectMedia(f) {
+    selMedia = f;
+    bar.classList.toggle('hide', !f); frame.classList.toggle('hide', !f);
+    if (f) { bar.querySelectorAll('[data-w],[data-al]').forEach(b => b.classList.toggle('hide', f.classList.contains('aud'))); placeBar(); }
+  }
+  document.addEventListener('mousedown', e => {
+    if (e.target.closest('#mediaBar')) return;
+    const f = e.target.closest && e.target.closest('#editor figure.media');
+    selectMedia(!readOnly && f ? f : null);
+  });
+  $('#doc').addEventListener('scroll', () => selMedia && placeBar());
+  window.addEventListener('resize', () => selMedia && placeBar());
+  bar.addEventListener('mousedown', e => e.preventDefault());
+  bar.addEventListener('click', e => {
+    const b = e.target.closest('button'); if (!b || !selMedia) return;
+    if (b.dataset.w) selMedia.style.width = b.dataset.w + '%';
+    if (b.dataset.al) selMedia.dataset.align = b.dataset.al;
+    if (b.id === 'mediaDel') { selMedia.remove(); selectMedia(null); } else placeBar();
+    commit();
+  });
+  editor.addEventListener('paste', e => {
+    const imgs = [...((e.clipboardData && e.clipboardData.files) || [])].filter(f => f.type.startsWith('image/'));
+    if (imgs.length) { e.preventDefault(); e.stopImmediatePropagation(); imgs.forEach(insertMedia); }
+  }, true);
 
   editor.addEventListener('keydown', e => {
     if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#link').dispatchEvent(new Event('mousedown')); $('#link').click(); }
@@ -552,7 +804,8 @@
     doc.querySelectorAll('script,style,iframe,object,embed,link,meta,form,base').forEach(n => n.remove());
     doc.body.querySelectorAll('*').forEach(el => {
       [...el.attributes].forEach(a => {
-        if (a.name.toLowerCase().startsWith('on') || /^\s*(javascript|data):/i.test(a.value)) el.removeAttribute(a.name);
+        const okMedia = a.name === 'src' && ((el.tagName === 'IMG' && /^data:image\/(png|jpe?g|gif|webp|avif|bmp);base64,/i.test(a.value)) || (el.tagName === 'AUDIO' && /^data:audio\/[\w.+-]+;base64,/i.test(a.value)));
+        if (a.name.toLowerCase().startsWith('on') || (/^\s*(javascript|data):/i.test(a.value) && !okMedia)) el.removeAttribute(a.name);
       });
     });
     return doc.body.innerHTML;
@@ -574,11 +827,12 @@
     title.textContent = n.title || 'Untitled note';
     const meta = document.createElement('div');
     meta.className = 'meta';
-    const tmp = document.createElement('div'); tmp.innerHTML = n.html;
-    meta.innerHTML = `<span>Edited ${esc(fmtDate(n.updated))}</span><span>${esc(wordStats(tmp.textContent).label)}</span>`;
+    meta.innerHTML = `<span>Edited ${esc(fmtDate(n.updated))}</span><span>${esc(wordStats(plain(n.html)).label)}</span>`;
     const body = document.createElement('div');
     body.className = 'rich';
     body.innerHTML = n.html.replace(/\u200B/g, '');
+    body.style.fontSize = (n.size || DEFAULT_SIZE) + 'px';
+    body.querySelectorAll('figure.aud audio').forEach(a => a.remove());
     stage.append(title, meta, body);
     return stage;
   }
@@ -598,7 +852,7 @@
       });
       const blob = await new Promise(r => canvas.toBlob(r, 'image/png'));
       const buf = new Uint8Array(await blob.arrayBuffer());
-      const out = embedNoteData(buf, { app: 'notes', version: 1, title: n.title, html: n.html, created: n.created, updated: n.updated });
+      const out = embedNoteData(buf, { app: 'notes', version: 1, title: n.title, html: n.html, size: n.size, readOnly: n.readOnly, created: n.created, updated: n.updated });
       download(new Blob([out], { type: 'image/png' }), fileSafe(n.title) + '.png');
       toast('Exported as PNG');
     } catch (err) {
@@ -618,12 +872,7 @@
 
   /* ---- Import ---- */
   function textToHtml(text) {
-    const inline = s => esc(s)
-      .replace(/\*\*\*(.+?)\*\*\*/g, '<strong><em>$1</em></strong>')
-      .replace(/\*\*(.+?)\*\*/g, '<strong>$1</strong>')
-      .replace(/(?<![*\w])\*(?!\s)(.+?)(?<!\s)\*(?!\w)/g, '<em>$1</em>')
-      .replace(/~~(.+?)~~/g, '<s>$1</s>')
-      .replace(/`([^`]+)`/g, '<code>$1</code>');
+    const inline = inlineMd;
     let html = '', inList = false;
     text.replace(/\r/g, '').split('\n').forEach(line => {
       const li = line.match(/^\s*[-*•]\s+(.*)/), h = line.match(/^(#{1,3})\s+(.*)/);
@@ -641,6 +890,8 @@
       id: uid(),
       title: String(d.title || '').slice(0, 200),
       html: sanitize(String(d.html || '')),
+      size: Number(d.size) || undefined,
+      readOnly: !!d.readOnly,
       created: Number(d.created) || Date.now(),
       updated: Date.now()
     };
@@ -649,13 +900,16 @@
   }
 
   async function importFiles(files) {
-    let added = 0, skipped = 0, last = null;
+    let added = 0, skipped = 0, media = 0, last = null;
     for (const f of files) {
       try {
         const name = f.name.toLowerCase();
         if (f.type === 'image/png' || name.endsWith('.png')) {
           const data = readNoteData(new Uint8Array(await f.arrayBuffer()));
-          if (data && (data.html !== undefined || data.title !== undefined)) { last = addImported(data); added++; } else skipped++;
+          if (data && (data.html !== undefined || data.title !== undefined)) { last = addImported(data); added++; }
+          else if (current() && !readOnly && await insertMedia(f)) media++; else skipped++;
+        } else if (f.type.startsWith('image/') || f.type.startsWith('audio/') || /\.(mp3|m4a|wav|ogg|flac)$/.test(name)) {
+          if (await insertMedia(f)) media++; else skipped++;
         } else if (name.endsWith('.json')) {
           const d = JSON.parse(await f.text());
           const arr = Array.isArray(d) ? d : (Array.isArray(d.notes) ? d.notes : [d]);
@@ -673,6 +927,7 @@
       query = ''; $('#search').value = '';
       currentId = last.id; renderList(); openNote(currentId); scheduleSave();
     }
+    if (media && !added) { if (!skipped) toast(`Added ${media} media file${media === 1 ? '' : 's'}`); return; }
     if (added && !skipped) toast(`Imported ${added} note${added === 1 ? '' : 's'}`);
     else if (added) toast(`Imported ${added}, skipped ${skipped} (no note data found)`);
     else toast('Nothing imported. PNGs must be exported from this app.');
