@@ -1,0 +1,439 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Notes</title>
+<style>
+  :root{
+    --bg:#0a0b0f; --panel:#11131a; --panel2:#171a23; --line:#232736;
+    --text:#e7e9f0; --muted:#7d8398; --accent:#8b7cf6; --accent2:#5b8def;
+    --radius:12px;
+  }
+  *{box-sizing:border-box;margin:0;padding:0}
+  html,body{height:100%}
+  body{
+    background:radial-gradient(1200px 600px at 80% -10%,rgba(139,124,246,.12),transparent 60%),var(--bg);
+    color:var(--text);
+    font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+    display:flex;height:100vh;overflow:hidden;
+  }
+  ::selection{background:rgba(139,124,246,.35)}
+  ::-webkit-scrollbar{width:8px;height:8px}
+  ::-webkit-scrollbar-thumb{background:#2a2f42;border-radius:8px}
+  ::-webkit-scrollbar-track{background:transparent}
+
+  /* Sidebar */
+  aside{
+    width:300px;min-width:300px;background:var(--panel);border-right:1px solid var(--line);
+    display:flex;flex-direction:column;
+  }
+  .brand{display:flex;align-items:center;justify-content:space-between;padding:20px 18px 12px}
+  .brand h1{font-size:18px;font-weight:650;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
+  .logo{width:26px;height:26px;border-radius:8px;background:linear-gradient(135deg,var(--accent),var(--accent2));display:grid;place-items:center;font-size:14px;color:#fff;box-shadow:0 4px 16px rgba(139,124,246,.4)}
+  .new-btn{
+    border:0;cursor:pointer;color:#fff;font-weight:600;font-size:13px;padding:8px 14px;border-radius:9px;
+    background:linear-gradient(135deg,var(--accent),var(--accent2));transition:.2s;
+  }
+  .new-btn:hover{transform:translateY(-1px);box-shadow:0 6px 18px rgba(139,124,246,.35)}
+  .search{margin:6px 16px 12px}
+  .search input{
+    width:100%;background:var(--panel2);border:1px solid var(--line);color:var(--text);
+    padding:10px 12px;border-radius:10px;font-size:13px;outline:none;transition:.2s;
+  }
+  .search input:focus{border-color:var(--accent);box-shadow:0 0 0 3px rgba(139,124,246,.15)}
+  #list{flex:1;overflow-y:auto;padding:0 10px 14px}
+  .card{
+    padding:12px 12px;border-radius:var(--radius);cursor:pointer;margin-bottom:4px;
+    border:1px solid transparent;transition:.15s;position:relative;
+  }
+  .card:hover{background:var(--panel2)}
+  .card.active{background:var(--panel2);border-color:var(--line);box-shadow:inset 3px 0 0 var(--accent)}
+  .card h3{font-size:14px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding-right:46px}
+  .card p{font-size:12px;color:var(--muted);margin-top:4px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;line-height:1.45}
+  .card time{font-size:11px;color:#575c70;margin-top:6px;display:block}
+  .del{
+    position:absolute;top:8px;right:8px;border:0;background:transparent;color:var(--muted);
+    font-size:11px;padding:4px 7px;border-radius:6px;cursor:pointer;opacity:0;transition:.15s;
+  }
+  .card:hover .del{opacity:1}
+  .del:hover{background:rgba(255,90,100,.15);color:#ff7a85}
+  .del.confirm{opacity:1;background:rgba(255,90,100,.2);color:#ff7a85}
+  .empty-list{color:var(--muted);font-size:13px;text-align:center;padding:30px 10px}
+
+  /* Main */
+  main{flex:1;display:flex;flex-direction:column;min-width:0}
+  .toolbar{
+    display:flex;flex-wrap:wrap;align-items:center;gap:4px;padding:10px 18px;
+    background:rgba(17,19,26,.8);backdrop-filter:blur(10px);border-bottom:1px solid var(--line);
+  }
+  .group{display:flex;align-items:center;gap:2px;padding-right:8px;margin-right:4px;border-right:1px solid var(--line)}
+  .group:last-child{border:0}
+  .tb{
+    min-width:32px;height:32px;border:0;background:transparent;color:#b6bbcc;border-radius:8px;
+    cursor:pointer;font-size:14px;display:grid;place-items:center;transition:.15s;padding:0 8px;font-family:inherit;
+  }
+  .tb:hover{background:var(--panel2);color:#fff}
+  .tb.on{background:rgba(139,124,246,.22);color:#c9c1ff}
+  select.tb{appearance:none;padding:0 10px;background:var(--panel2);border:1px solid var(--line);font-size:13px;outline:none}
+  select.tb option{background:var(--panel)}
+  .color{position:relative;overflow:hidden}
+  .color input{position:absolute;inset:0;opacity:0;cursor:pointer;width:100%;height:100%}
+  .color span{pointer-events:none;font-weight:700;border-bottom:3px solid var(--c,#fff);line-height:1.1}
+
+  .doc{flex:1;overflow-y:auto;display:flex;justify-content:center;padding:36px 28px 60px}
+  .page{width:100%;max-width:780px}
+  #title{
+    width:100%;background:transparent;border:0;outline:0;color:#fff;
+    font-size:38px;font-weight:700;letter-spacing:-.03em;margin-bottom:6px;font-family:inherit;
+  }
+  #title::placeholder{color:#3a3f54}
+  .meta{display:flex;gap:14px;color:var(--muted);font-size:12px;margin-bottom:22px;align-items:center}
+  .dot{width:6px;height:6px;border-radius:50%;background:#4ade80;display:inline-block;margin-right:6px;transition:.2s}
+  .dot.saving{background:#fbbf24}
+
+  #editor{
+    outline:none;min-height:55vh;font-size:16.5px;line-height:1.75;color:#d6d9e6;caret-color:var(--accent);
+    word-wrap:break-word;
+  }
+  #editor.is-empty::before{content:attr(data-ph);color:#41465c;pointer-events:none;position:absolute}
+  #editor h1{font-size:30px;margin:.8em 0 .3em;letter-spacing:-.02em;color:#fff}
+  #editor h2{font-size:23px;margin:.8em 0 .3em;letter-spacing:-.01em;color:#fff}
+  #editor h3{font-size:18px;margin:.8em 0 .3em;color:#fff}
+  #editor strong,#editor b{color:#fff;font-weight:700}
+  #editor ul,#editor ol{margin:.5em 0 .5em 1.5em}
+  #editor li{margin:.15em 0}
+  #editor li::marker{color:var(--accent)}
+  #editor blockquote{border-left:3px solid var(--accent);padding:.3em 0 .3em 16px;margin:.8em 0;color:#9ca2b8;font-style:italic;background:linear-gradient(90deg,rgba(139,124,246,.07),transparent)}
+  #editor code{background:var(--panel2);border:1px solid var(--line);padding:2px 6px;border-radius:6px;font-family:ui-monospace,Menlo,Consolas,monospace;font-size:.88em;color:#f0abfc}
+  #editor a{color:var(--accent2);text-decoration:underline;text-underline-offset:3px}
+  #editor hr{border:0;border-top:1px solid var(--line);margin:1.5em 0}
+  #editor font[size="2"]{font-size:13px}
+  #editor font[size="3"]{font-size:16.5px}
+  #editor font[size="4"]{font-size:20px}
+  #editor font[size="5"]{font-size:26px}
+  #editor font[size="6"]{font-size:34px}
+
+  .none{flex:1;display:grid;place-items:center;color:var(--muted);text-align:center}
+  .hide{display:none!important}
+
+  @media (max-width:760px){
+    body{flex-direction:column;height:auto;min-height:100vh;overflow:auto}
+    aside{width:100%;min-width:0;max-height:240px}
+    .doc{padding:24px 16px}
+    #title{font-size:28px}
+  }
+</style>
+</head>
+<body>
+
+<aside>
+  <div class="brand">
+    <h1><span class="logo">✦</span>Notes</h1>
+    <button class="new-btn" id="newBtn">+ New</button>
+  </div>
+  <div class="search"><input id="search" placeholder="Search notes…" autocomplete="off"></div>
+  <div id="list"></div>
+</aside>
+
+<main id="main">
+  <div class="toolbar" id="toolbar">
+    <div class="group">
+      <button class="tb" data-cmd="undo" title="Undo">↶</button>
+      <button class="tb" data-cmd="redo" title="Redo">↷</button>
+    </div>
+    <div class="group">
+      <select class="tb" id="block" title="Paragraph style">
+        <option value="P">Paragraph</option>
+        <option value="H1">Heading 1</option>
+        <option value="H2">Heading 2</option>
+        <option value="H3">Heading 3</option>
+      </select>
+      <select class="tb" id="font" title="Font">
+        <option value="Inter, sans-serif">Sans</option>
+        <option value="Georgia, serif">Serif</option>
+        <option value="ui-monospace, Menlo, monospace">Mono</option>
+        <option value="'Comic Sans MS', cursive">Casual</option>
+      </select>
+      <select class="tb" id="size" title="Size">
+        <option value="2">Small</option>
+        <option value="3" selected>Normal</option>
+        <option value="4">Large</option>
+        <option value="5">X-Large</option>
+        <option value="6">Huge</option>
+      </select>
+    </div>
+    <div class="group">
+      <button class="tb" data-cmd="bold" title="Bold (Ctrl+B)"><b>B</b></button>
+      <button class="tb" data-cmd="italic" title="Italic (Ctrl+I)"><i>I</i></button>
+      <button class="tb" data-cmd="underline" title="Underline (Ctrl+U)"><u>U</u></button>
+      <button class="tb" data-cmd="strikeThrough" title="Strikethrough"><s>S</s></button>
+    </div>
+    <div class="group">
+      <label class="tb color" title="Text color"><span id="fcSpan" style="--c:#8b7cf6">A</span><input type="color" id="fc" value="#8b7cf6"></label>
+      <label class="tb color" title="Highlight"><span id="hcSpan" style="--c:#fbbf24">▮</span><input type="color" id="hc" value="#fbbf24"></label>
+    </div>
+    <div class="group">
+      <button class="tb" data-cmd="insertUnorderedList" title="Bullet list">• List</button>
+      <button class="tb" data-cmd="insertOrderedList" title="Numbered list">1. List</button>
+      <button class="tb" data-cmd="outdent" title="Outdent">⇤</button>
+      <button class="tb" data-cmd="indent" title="Indent">⇥</button>
+    </div>
+    <div class="group">
+      <button class="tb" data-cmd="justifyLeft" title="Align left">⯇</button>
+      <button class="tb" data-cmd="justifyCenter" title="Center">≡</button>
+      <button class="tb" data-cmd="justifyRight" title="Align right">⯈</button>
+    </div>
+    <div class="group">
+      <button class="tb" id="quote" title="Quote">❝</button>
+      <button class="tb" id="link" title="Insert link">🔗</button>
+      <button class="tb" data-cmd="insertHorizontalRule" title="Divider">―</button>
+      <button class="tb" data-cmd="removeFormat" title="Clear formatting">Tx</button>
+    </div>
+  </div>
+
+  <div class="doc" id="doc">
+    <div class="page">
+      <input id="title" placeholder="Untitled note" autocomplete="off" spellcheck="false">
+      <div class="meta">
+        <span id="date"></span>
+        <span id="count">0 words</span>
+        <span><i class="dot" id="dot"></i><span id="status">Saved</span></span>
+      </div>
+      <div id="editor" contenteditable="true" spellcheck="true" data-ph="Start writing… try **bold**, *italic* or ***both***"></div>
+    </div>
+  </div>
+  <div class="none hide" id="none"><div><p style="font-size:42px;margin-bottom:10px">✦</p><p>No note selected.</p><p style="margin-top:6px;font-size:13px">Create one to get started.</p></div></div>
+</main>
+
+<script>
+(() => {
+  const $ = s => document.querySelector(s);
+  const editor = $('#editor'), titleEl = $('#title'), listEl = $('#list');
+  let notes = [], currentId = null, saveTimer = null, query = '', pendingDelete = null;
+
+  const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 6);
+  const clean = s => (s || '').replace(/\u200B/g, '');
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const fmtDate = t => new Date(t).toLocaleDateString(undefined,{month:'short',day:'numeric',year:'numeric'}) + ' · ' +
+                       new Date(t).toLocaleTimeString(undefined,{hour:'2-digit',minute:'2-digit'});
+  const plain = html => { const d = document.createElement('div'); d.innerHTML = html; return clean(d.innerText || d.textContent || '').trim(); };
+
+  /* ---------- Storage (persistent when available, memory otherwise) ---------- */
+  async function load() {
+    try {
+      const r = await window.storage.get('notes-v1');
+      if (r && r.value) notes = JSON.parse(r.value);
+    } catch (e) { /* no saved notes yet */ }
+    if (!notes.length) notes = [makeNote('Welcome', welcomeHTML())];
+    currentId = notes[0].id;
+    renderList(); openNote(currentId);
+  }
+  function setStatus(saving) {
+    $('#dot').classList.toggle('saving', saving);
+    $('#status').textContent = saving ? 'Saving…' : 'Saved';
+  }
+  function scheduleSave() {
+    setStatus(true);
+    clearTimeout(saveTimer);
+    saveTimer = setTimeout(async () => {
+      try { await window.storage.set('notes-v1', JSON.stringify(notes)); } catch (e) {}
+      setStatus(false);
+    }, 500);
+  }
+
+  function welcomeHTML() {
+    return '<p>Welcome! This editor formats as you type.</p>' +
+      '<ul><li>Type <code>**text**</code> for <strong>bold</strong></li>' +
+      '<li>Type <code>*text*</code> for <em>italic</em></li>' +
+      '<li>Type <code>***text***</code> for <strong><em>both</em></strong></li>' +
+      '<li>Type <code>~~text~~</code> for <s>strikethrough</s></li></ul>' +
+      '<p>Use the toolbar for headings, colors, lists, links and more.</p>';
+  }
+
+  function makeNote(title = '', html = '') {
+    const now = Date.now();
+    return { id: uid(), title, html, created: now, updated: now };
+  }
+
+  /* ---------- Sidebar ---------- */
+  function renderList() {
+    const q = query.toLowerCase();
+    const shown = notes
+      .filter(n => !q || n.title.toLowerCase().includes(q) || plain(n.html).toLowerCase().includes(q))
+      .sort((a, b) => b.updated - a.updated);
+    if (!shown.length) { listEl.innerHTML = '<div class="empty-list">No notes found</div>'; return; }
+    listEl.innerHTML = '';
+    shown.forEach(n => {
+      const el = document.createElement('div');
+      el.className = 'card' + (n.id === currentId ? ' active' : '');
+      el.innerHTML = `<h3>${esc(n.title || 'Untitled note')}</h3><p>${esc(plain(n.html).slice(0, 120)) || 'Empty note'}</p><time>${fmtDate(n.updated)}</time>`;
+      const del = document.createElement('button');
+      del.className = 'del' + (pendingDelete === n.id ? ' confirm' : '');
+      del.textContent = pendingDelete === n.id ? 'Sure?' : 'Delete';
+      del.onclick = e => {
+        e.stopPropagation();
+        if (pendingDelete === n.id) { removeNote(n.id); }
+        else { pendingDelete = n.id; renderList(); setTimeout(() => { if (pendingDelete === n.id) { pendingDelete = null; renderList(); } }, 2500); }
+      };
+      el.appendChild(del);
+      el.onclick = () => { pendingDelete = null; openNote(n.id); renderList(); };
+      listEl.appendChild(el);
+    });
+  }
+
+  function removeNote(id) {
+    notes = notes.filter(n => n.id !== id);
+    pendingDelete = null;
+    if (currentId === id) currentId = notes.length ? notes[0].id : null;
+    scheduleSave(); renderList(); openNote(currentId);
+  }
+
+  function openNote(id) {
+    const n = notes.find(x => x.id === id);
+    const has = !!n;
+    $('#toolbar').classList.toggle('hide', !has);
+    $('#doc').classList.toggle('hide', !has);
+    $('#none').classList.toggle('hide', has);
+    if (!has) return;
+    currentId = id;
+    titleEl.value = n.title;
+    editor.innerHTML = n.html;
+    $('#date').textContent = 'Edited ' + fmtDate(n.updated);
+    updateMeta();
+  }
+
+  function updateMeta() {
+    const t = clean(editor.innerText).trim();
+    const w = t ? t.split(/\s+/).length : 0;
+    $('#count').textContent = w + (w === 1 ? ' word' : ' words') + ' · ' + t.length + ' chars';
+    editor.classList.toggle('is-empty', !t && !editor.querySelector('li,hr,blockquote'));
+  }
+
+  function commit() {
+    const n = notes.find(x => x.id === currentId);
+    if (!n) return;
+    n.title = titleEl.value;
+    n.html = editor.innerHTML;
+    n.updated = Date.now();
+    $('#date').textContent = 'Edited ' + fmtDate(n.updated);
+    updateMeta(); scheduleSave(); renderList();
+  }
+
+  $('#newBtn').onclick = () => {
+    const n = makeNote(); notes.unshift(n);
+    query = ''; $('#search').value = '';
+    currentId = n.id; openNote(n.id); renderList(); scheduleSave();
+    titleEl.focus();
+  };
+  $('#search').oninput = e => { query = e.target.value; renderList(); };
+  titleEl.addEventListener('input', commit);
+  titleEl.addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); editor.focus(); } });
+
+  /* ---------- Auto-formatting (**bold**, *italic*, ***both***, ~~strike~~, `code`) ---------- */
+  const inner = '([^*\\s](?:[^*]*[^*\\s])?)';
+  const rules = [
+    [new RegExp('(?<!\\*)\\*\\*\\*' + inner + '\\*\\*\\*$'), t => `<strong><em>${t}</em></strong>`],
+    [new RegExp('(?<!\\*)\\*\\*' + inner + '\\*\\*$'),       t => `<strong>${t}</strong>`],
+    [new RegExp('(?<!\\*)\\*' + inner + '\\*$'),             t => `<em>${t}</em>`],
+    [/~~([^~\s](?:[^~]*[^~\s])?)~~$/,                        t => `<s>${t}</s>`],
+    [/`([^`]+)`$/,                                           t => `<code>${t}</code>`],
+  ];
+
+  function autoFormat(e) {
+    if (e.inputType !== 'insertText' || !e.data || !/[*~`]/.test(e.data)) return;
+    const sel = getSelection();
+    if (!sel.rangeCount || !sel.isCollapsed) return;
+    const node = sel.anchorNode;
+    if (!node || node.nodeType !== 3 || !editor.contains(node)) return;
+    if (node.parentElement.closest('code')) return;
+    const off = sel.anchorOffset;
+    const before = node.textContent.slice(0, off);
+    for (const [re, tpl] of rules) {
+      const m = before.match(re);
+      if (!m) continue;
+      const r = document.createRange();
+      r.setStart(node, off - m[0].length);
+      r.setEnd(node, off);
+      sel.removeAllRanges(); sel.addRange(r);
+      // execCommand keeps the native undo stack intact
+      document.execCommand('insertHTML', false, tpl(esc(m[1])) + '&#8203;');
+      return;
+    }
+  }
+
+  editor.addEventListener('input', e => { autoFormat(e); commit(); });
+
+  // Paste as plain text to keep the dark theme clean
+  editor.addEventListener('paste', e => {
+    e.preventDefault();
+    const text = (e.clipboardData || window.clipboardData).getData('text/plain');
+    document.execCommand('insertText', false, text);
+  });
+
+  /* ---------- Toolbar ---------- */
+  document.execCommand('styleWithCSS', false, false);
+  const exec = (cmd, val = null) => { editor.focus(); document.execCommand(cmd, false, val); commit(); refreshState(); };
+
+  document.querySelectorAll('[data-cmd]').forEach(b => {
+    b.addEventListener('mousedown', e => e.preventDefault());
+    b.addEventListener('click', () => exec(b.dataset.cmd));
+  });
+
+  $('#block').onchange = e => exec('formatBlock', e.target.value);
+  $('#font').onchange  = e => exec('fontName', e.target.value);
+  $('#size').onchange  = e => exec('fontSize', e.target.value);
+
+  $('#fc').addEventListener('input', e => { $('#fcSpan').style.setProperty('--c', e.target.value); exec('foreColor', e.target.value); });
+  $('#hc').addEventListener('input', e => { $('#hcSpan').style.setProperty('--c', e.target.value); exec('hiliteColor', e.target.value); });
+
+  $('#quote').addEventListener('mousedown', e => e.preventDefault());
+  $('#quote').onclick = () => {
+    const inQuote = (getSelection().anchorNode?.parentElement || editor).closest('blockquote');
+    exec('formatBlock', inQuote ? 'P' : 'BLOCKQUOTE');
+  };
+
+  let savedRange = null;
+  $('#link').addEventListener('mousedown', e => {
+    e.preventDefault();
+    const s = getSelection(); savedRange = s.rangeCount ? s.getRangeAt(0).cloneRange() : null;
+  });
+  $('#link').onclick = () => {
+    const url = window.prompt('Link URL', 'https://');
+    if (!url) return;
+    editor.focus();
+    if (savedRange) { const s = getSelection(); s.removeAllRanges(); s.addRange(savedRange); }
+    if (getSelection().isCollapsed) document.execCommand('insertHTML', false, `<a href="${esc(url)}" target="_blank" rel="noopener">${esc(url)}</a>&#8203;`);
+    else document.execCommand('createLink', false, url);
+    commit();
+  };
+
+  // Active state highlight
+  function refreshState() {
+    document.querySelectorAll('[data-cmd]').forEach(b => {
+      const c = b.dataset.cmd;
+      if (['bold','italic','underline','strikeThrough','insertUnorderedList','insertOrderedList','justifyLeft','justifyCenter','justifyRight'].includes(c)) {
+        let on = false; try { on = document.queryCommandState(c); } catch (e) {}
+        b.classList.toggle('on', on);
+      }
+    });
+    try {
+      const v = (document.queryCommandValue('formatBlock') || '').toUpperCase().replace(/[<>]/g, '');
+      $('#block').value = ['H1','H2','H3'].includes(v) ? v : 'P';
+    } catch (e) {}
+  }
+  document.addEventListener('selectionchange', () => {
+    const s = getSelection();
+    if (s.anchorNode && editor.contains(s.anchorNode)) refreshState();
+  });
+
+  // Keyboard shortcut: Ctrl/Cmd+K for link
+  editor.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === 'k') { e.preventDefault(); $('#link').dispatchEvent(new Event('mousedown')); $('#link').click(); }
+  });
+
+  load();
+})();
+</script>
+</body>
+</html>
