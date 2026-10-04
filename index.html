@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <title>Notes</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js"></script>
 <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -19,7 +19,7 @@
     background:radial-gradient(1200px 600px at 80% -10%,rgba(139,124,246,.12),transparent 60%),var(--bg);
     color:var(--text);
     font-family:Inter,ui-sans-serif,system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
-    display:flex;height:100vh;overflow:hidden;
+    display:flex;height:100vh;height:100dvh;overflow:hidden;
   }
   ::selection{background:rgba(139,124,246,.35)}
   ::-webkit-scrollbar{width:8px;height:8px}
@@ -34,7 +34,27 @@
   /* Sidebar */
   aside{
     width:300px;min-width:300px;background:var(--panel);border-right:1px solid var(--line);
-    display:flex;flex-direction:column;
+    overflow:hidden;flex-shrink:0;
+    transition:width .25s ease,min-width .25s ease,border-color .25s ease,transform .25s ease;
+  }
+  .side-inner{width:300px;height:100%;display:flex;flex-direction:column}
+  body.side-collapsed aside{width:0;min-width:0;border-right-color:transparent}
+
+  /* Top bar with sidebar toggle */
+  .topbar{
+    display:flex;align-items:center;gap:10px;padding:8px 14px;
+    background:rgba(17,19,26,.8);border-bottom:1px solid var(--line);min-height:50px;
+  }
+  .side-toggle{
+    width:36px;height:36px;border:1px solid var(--line);background:var(--panel2);color:#b6bbcc;
+    border-radius:10px;cursor:pointer;display:grid;place-items:center;flex-shrink:0;transition:.15s;
+  }
+  .side-toggle:hover{border-color:var(--accent);color:#fff;background:rgba(139,124,246,.12)}
+  .side-toggle svg{width:18px;height:18px}
+  #topTitle{font-size:14px;font-weight:600;color:#b6bbcc;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0}
+  #backdrop{
+    position:fixed;inset:0;background:rgba(5,6,10,.6);backdrop-filter:blur(2px);
+    opacity:0;pointer-events:none;transition:opacity .25s;z-index:80;
   }
   .brand{display:flex;align-items:center;justify-content:space-between;padding:20px 18px 12px}
   .brand h1{font-size:18px;font-weight:650;letter-spacing:-.02em;display:flex;align-items:center;gap:10px}
@@ -169,17 +189,53 @@
   }
   #toast.show{opacity:1;transform:translate(-50%,0)}
 
+  /* Touch devices: no hover, so keep delete visible */
+  @media (hover:none){
+    .del{opacity:.8}
+  }
+
   @media (max-width:760px){
-    body{flex-direction:column;height:auto;min-height:100vh;overflow:auto}
-    aside{width:100%;min-width:0;max-height:300px}
-    .doc{padding:24px 16px}
+    /* Sidebar becomes an off-canvas drawer */
+    aside{
+      position:fixed;top:0;left:0;bottom:0;width:min(86vw,320px);min-width:0;z-index:90;
+      transform:translateX(-100%);border-right-color:var(--line);
+      padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+    }
+    body.side-collapsed aside{width:min(86vw,320px);min-width:0;border-right-color:var(--line)}
+    .side-inner{width:100%}
+    body.side-open aside{transform:none;box-shadow:12px 0 40px rgba(0,0,0,.55)}
+    body.side-open #backdrop{opacity:1;pointer-events:auto}
+
+    .topbar{padding:8px 12px;padding-top:calc(8px + env(safe-area-inset-top,0px))}
+    .side-toggle{width:40px;height:40px}
+
+    /* Toolbar: single horizontally-scrolling row with bigger tap targets */
+    .toolbar{flex-wrap:nowrap;overflow-x:auto;overflow-y:hidden;-webkit-overflow-scrolling:touch;
+      padding:8px 12px;scrollbar-width:none}
+    .toolbar::-webkit-scrollbar{display:none}
+    .group{flex-shrink:0}
+    .tb{min-width:38px;height:38px}
+    #selSize{height:38px;font-size:16px}
+    .lbl{white-space:nowrap}
+
+    .actions .ghost{padding:11px 6px}
+    .new-btn{padding:10px 16px}
+    .search input{font-size:16px;padding:12px}
+    .card{padding:14px 12px}
+    .del{padding:8px 10px;font-size:12px}
+
+    .doc{padding:20px 16px calc(48px + env(safe-area-inset-bottom,0px))}
     #title{font-size:28px}
+    .meta{flex-wrap:wrap;gap:6px 14px}
+    .rich{font-size:16px}
+    #toast{bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:90vw;text-align:center}
   }
 </style>
 </head>
 <body>
 
-<aside>
+<aside id="sidebar" aria-label="Notes list">
+<div class="side-inner">
   <div class="brand">
     <h1><span class="logo">✦</span>Notes</h1>
     <button class="new-btn" id="newBtn">+ New</button>
@@ -192,9 +248,17 @@
   <input type="file" id="file" accept=".png,.json,.txt,.md,.markdown,image/*,audio/*,application/json,text/plain" multiple hidden>
   <div class="search"><input id="search" placeholder="Search notes…" autocomplete="off"></div>
   <div id="list"></div>
+</div>
 </aside>
+<div id="backdrop"></div>
 
 <main id="main">
+  <div class="topbar">
+    <button class="side-toggle" id="sideToggle" title="Toggle sidebar (Ctrl+\)" aria-label="Toggle sidebar" aria-controls="sidebar" aria-expanded="true">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="16" rx="3"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+    </button>
+    <span id="topTitle">Notes</span>
+  </div>
   <div class="toolbar" id="toolbar">
     <div class="group keep">
       <button class="tb ro" id="roBtn" title="Toggle read-only mode">🔓 Editing</button>
@@ -320,6 +384,36 @@
   });
   const fontKey = v => (v || '').split(',')[0].replace(/['"]/g, '').trim().toLowerCase();
 
+  /* ---------- Collapsible sidebar ---------- */
+  const mqMobile = window.matchMedia('(max-width:760px)');
+  const sideBtn = $('#sideToggle');
+  const lsGet = k => { try { return localStorage.getItem(k); } catch (e) { return null; } };
+  const lsSet = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+  function syncSide() {
+    const open = mqMobile.matches ? document.body.classList.contains('side-open')
+                                  : !document.body.classList.contains('side-collapsed');
+    sideBtn.setAttribute('aria-expanded', String(open));
+  }
+  function closeDrawer() { if (mqMobile.matches) { document.body.classList.remove('side-open'); syncSide(); } }
+  function toggleSide() {
+    if (mqMobile.matches) document.body.classList.toggle('side-open');
+    else {
+      document.body.classList.toggle('side-collapsed');
+      lsSet('notes-side-collapsed', document.body.classList.contains('side-collapsed') ? '1' : '0');
+    }
+    syncSide();
+  }
+  if (lsGet('notes-side-collapsed') === '1') document.body.classList.add('side-collapsed');
+  sideBtn.onclick = toggleSide;
+  $('#backdrop').onclick = closeDrawer;
+  mqMobile.addEventListener('change', () => { document.body.classList.remove('side-open'); syncSide(); });
+  document.addEventListener('keydown', e => {
+    if ((e.ctrlKey || e.metaKey) && e.key === '\\') { e.preventDefault(); toggleSide(); }
+    else if (e.key === 'Escape' && document.body.classList.contains('side-open')) closeDrawer();
+  });
+  const syncTopTitle = () => { const n = current(); $('#topTitle').textContent = (n && n.title) || (n ? 'Untitled note' : 'Notes'); };
+  syncSide();
+
   function toast(msg) {
     const t = $('#toast'); t.textContent = msg; t.classList.add('show');
     clearTimeout(toastTimer); toastTimer = setTimeout(() => t.classList.remove('show'), 2600);
@@ -385,7 +479,7 @@
         else { pendingDelete = n.id; renderList(); setTimeout(() => { if (pendingDelete === n.id) { pendingDelete = null; renderList(); } }, 2500); }
       };
       el.appendChild(del);
-      el.onclick = () => { pendingDelete = null; openNote(n.id); renderList(); };
+      el.onclick = () => { pendingDelete = null; openNote(n.id); renderList(); closeDrawer(); };
       listEl.appendChild(el);
     });
   }
@@ -403,7 +497,7 @@
     $('#toolbar').classList.toggle('hide', !has);
     $('#doc').classList.toggle('hide', !has);
     $('#none').classList.toggle('hide', has);
-    if (!has) return;
+    if (!has) { syncTopTitle(); return; }
     currentId = id;
     titleEl.value = n.title;
     editor.innerHTML = n.html;
@@ -411,7 +505,7 @@
     applyBase(n.size || DEFAULT_SIZE);
     setReadOnly(!!n.readOnly, false);
     $('#date').textContent = 'Edited ' + fmtDate(n.updated);
-    updateMeta();
+    updateMeta(); syncTopTitle();
   }
 
   function wordStats(text) {
@@ -433,13 +527,14 @@
     n.html = editor.innerHTML;
     n.updated = Date.now();
     $('#date').textContent = 'Edited ' + fmtDate(n.updated);
-    updateMeta(); scheduleSave(); renderList();
+    updateMeta(); syncTopTitle(); scheduleSave(); renderList();
   }
 
   $('#newBtn').onclick = () => {
     const n = makeNote(); notes.unshift(n);
     query = ''; $('#search').value = '';
     currentId = n.id; openNote(n.id); renderList(); scheduleSave();
+    closeDrawer();
     titleEl.focus();
   };
   $('#search').oninput = e => { query = e.target.value; renderList(); };
